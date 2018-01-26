@@ -4,7 +4,7 @@ State = class("State")
 
 State.static._version = "1.0.0"
 State.static.stateLog = true
-State.static.nextStateDefaly = 1000
+State.static.nextStateDelay = 1000
 
 State.static.stateInjection = {
 	before = function(state) end,
@@ -192,7 +192,8 @@ function State:start(startState)
 				before = function() end,
 				after = function() end,
 				whiteList = {}
-			}
+			},
+			delay = State.static.nextStateDelay
 		}
 		
 		local threadCreate = thread.createSubThread
@@ -204,10 +205,15 @@ function State:start(startState)
 			self:configuration(thread, params)
 			
 			while(true) do
-				local nextState = self:nextState(self.state, params)
+				local nextState, nextStateDelay = self:nextState(self.state, params)
 				self.preState = self.state
 				self.state = nextState
-				
+
+				params.delay = State.static.nextStateDelay
+				if type(nextStateDelay) == "number" then
+					params.delay = nextStateDelay
+				end
+
 				if self.preState ~= self.state then
 					self.timeoutSec = nil
 				end
@@ -269,8 +275,8 @@ function State:nextState(func, params)
 			ilog(info)
 		end
 	end
-	mSleep(State.static.nextStateDefaly)
-	state = func(self)
+	mSleep(params.delay)
+	state, delay = func(self)
 	
 	-- state after
 	local stateAfter = params.stateInjection.after
@@ -290,7 +296,7 @@ function State:nextState(func, params)
 		end
 	end
 
-	return state
+	return state, delay
 end
 
 
@@ -375,7 +381,7 @@ function StateMgr:start(params)
 	local stateStatus = nil
 	local flow = gc.taskFlow[self.name]
 	
-	if not flow then 
+	if not flow then  
 		error("no configuration task flow: "..self.name) 
 	end
 	

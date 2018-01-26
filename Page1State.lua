@@ -16,7 +16,7 @@ function Page1State:configuration(thread, params)
 end
 
 function Page1State:enteredState()
-	return self.wait1
+	return self.wait1, 500
 end
 
 function Page1State:reenteredState()
