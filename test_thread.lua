@@ -8,6 +8,9 @@ local thread_id1 = thread.create(function()
 			thread_id3 = thread.createSubThread(function()
 				thread.setTimeout(3000)
 				for i=1,10 do
+					if i == 3 then
+						thread.setTimeout(3000)
+					end
 					nLog("协程3：".. i)
 					mSleep(1000)
 				end
@@ -22,15 +25,10 @@ local thread_id1 = thread.create(function()
 				end
 			})
 			--thread.wait(thread_id3)
-		
-		
 		for i=1,10 do
 			nLog("协程2：".. i)
 			mSleep(1000)
 		end
-		
-		
-		
 		
 	end,{
 		catchBack = function(exp)

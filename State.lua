@@ -6,11 +6,7 @@ State.static._version = "1.0.0"
 State.static.stateLog = true
 State.static.nextStateDelay = 1000
 
-State.static.stateInjection = {
-	before = function(state) end,
-	after = function(state) end,
-	whiteList = {}
-}
+State.static.stateHooks = {}
 
 State.static.createState = function(stateName, isAlone)
 	local state = require(stateName)
@@ -43,31 +39,49 @@ State.static.invokeWithThread = function(state)
 	return State.static.threadWait(thread, thread_id)
 end
 
-State.static.inWhiteList = function(ele, whiteList)
-	for _, value in pairs(whiteList) do
-		if value == ele then
-			return true
+
+local StateUtils = {
+	inWhiteList = function(ele, whiteList)
+		if type(whiteList) ~= "table" then
+			return false
 		end
+
+		for _, value in pairs(whiteList) do
+			if value == ele then
+				return true
+			end
+		end
+		return false
+	end,
+	inHookList = function(ele, hookList)
+		if type(hookList) ~= "table" then
+			return false
+		end
+
+		for _, value in pairs(hookList) do
+			if type(value) == "string" and string.match(ele, value) ~= nil then
+				return true
+			end
+		end
+		return false
+	end,
+	wellFormatedTimeout = function(second)
+		second = second or 0
+		if type(second) ~= "number" then
+	        return second
+	    end
+
+	    if second < 60 * 3 then
+	    	return string.format("%.0f", second).."s"
+	    elseif second < 60 * 60 then
+	    	return string.format("%.1f", second / 60).."m"
+	    elseif second < 60 * 60 * 24 then
+	    	return string.format("%.2f", second / 60 / 60).."h"
+	    end
+
+	    return second
 	end
-	return false
-end
-
-State.static.wellFormatedTimeout = function(second)
-	second = second or 0
-	if type(second) ~= "number" then
-        return second
-    end
-
-    if second < 60 * 3 then
-    	return string.format("%.0f", second).."s"
-    elseif second < 60 * 60 then
-    	return string.format("%.1f", second / 60).."m"
-    elseif second < 60 * 60 * 24 then
-    	return string.format("%.2f", second / 60 / 60).."h"
-    end
-
-    return second
-end
+}
 
 
 function State:initialize(name)
@@ -133,7 +147,7 @@ function State:_handleThreadTimeout(exp, params)
 	return state
 end
 
-function State:isStateTimeout(millisecond)
+function State:isStateUnitTimeout(millisecond)
 	if self.preState and self.preState == self.state then
 		self.timeoutSec = millisecond / 1000 - (os.time() - self.curTime)
 		if self.timeoutSec <= 0 then
@@ -149,7 +163,7 @@ function State:isStateTimeout(millisecond)
 	end
 end
 
-function State:isStateCountOut(maxCount)
+function State:isStateUnitCountOut(maxCount)
 	if self.preState and self.preState == self.state then
 		self.outCount = self.outCount + 1
 	else
@@ -159,7 +173,7 @@ function State:isStateCountOut(maxCount)
 	return self.outCount >= maxCount
 end
 
-function State:isStateCountModZero(mod)
+function State:isStateUnitCountModZero(mod)
 	if self.preState and self.preState == self.state then
 		self.outCount = self.outCount + 1
 	else
@@ -169,12 +183,18 @@ function State:isStateCountModZero(mod)
 	return self.outCount % mod == 0
 end
 
-function State:setTimeout(timeout)
+function State:setStateTimeout(timeout)
 	thread.setTimeout(timeout, self.thread_id)
 end
 
-function State:clearTimeout()
+function State:clearStateTimeout()
 	thread.clearTimeout(self.thread_id)
+end
+
+function State:clearStateUnitTimeout()
+	if self.curTime ~= nil then
+		self.curTime = os.time()
+	end
 end
 
 function State:stop()
@@ -188,11 +208,7 @@ function State:start(startState)
 		self.preState = nil
 		
 		local params = {
-			stateInjection = {
-				before = function() end,
-				after = function() end,
-				whiteList = {}
-			},
+			stateHook = {},
 			delay = State.static.nextStateDelay
 		}
 		
@@ -237,65 +253,87 @@ function State:start(startState)
 	end
 end
 
-function State:nextState(func, params)
-	params = params or {}
-	local state = nil
-
-	local skipGlobalStateInjection = State.static.inWhiteList(self.name, State.static.stateInjection.whiteList)
-	local skipStateInjection = State.static.inWhiteList(func, params.stateInjection.whiteList)
-
-	-- global state before
-	local globalStateBefore = State.static.stateInjection.before
-	if not skipGlobalStateInjection and globalStateBefore and type(globalStateBefore) == "function" then
-		local aState = globalStateBefore(self)
-		if aState ~= nil then
-			state = aState
-			return
+function State:beforeHooks(params)
+	if type(State.static.stateHooks) == "table" then
+		for _, hook in pairs(State.static.stateHooks) do
+			if type(hook) == "table" and type(hook.before) == "function" and not StateUtils.inWhiteList(self.name, hook.whiteList) and StateUtils.inHookList(self.name, hook.patterns) then
+				local state = hook.before(self)
+				if state ~= nil then
+					return state
+				end
+			end
 		end
 	end
 
-	-- state before
-	local stateBefore = params.stateInjection.before
-	if not skipStateInjection and stateBefore and type(stateBefore) == "function" then
-		local aState = stateBefore(self)
-		if aState ~= nil then
-			state = aState
-			return
+	local unitHook = params.stateHook
+	if type(unitHook) == "table" and type(unitHook.before) == "function" and not StateUtils.inWhiteList(params.stateName, unitHook.whiteList) and StateUtils.inHookList(params.stateName, unitHook.patterns) then
+		local state = unitHook.before(self)
+		if state ~= nil then
+			return state
 		end
+	end
+end
+
+function State:afterHooks(params)
+	local aState = nil
+
+	local unitHook = params.stateHook
+	if type(unitHook) == "table" and type(unitHook.after) == "function" and not StateUtils.inWhiteList(params.stateName, unitHook.whiteList) and StateUtils.inHookList(params.stateName, unitHook.patterns)  then
+		local state = unitHook.after(self)
+		if state ~= nil then
+			aState = state
+		end
+	end
+
+	if type(State.static.stateHooks) == "table" then
+		for _, hook in pairs(State.static.stateHooks) do
+			if type(hook) == "table" and type(hook.after) == "function" and not StateUtils.inWhiteList(self.name, hook.whiteList) and StateUtils.inHookList(self.name, hook.patterns) then
+				local state = hook.after(self)
+				if state ~= nil then
+					aState = state
+				end
+			end
+		end
+	end	
+
+	return aState
+end
+
+function State:nextState(func, params)
+	params = params or {}
+	params.stateName = nil
+	local stateMapping = self:findState(func)
+	if stateMapping then
+		params.stateName = stateMapping.name
+	end
+
+	local state = nil
+	local delay = nil
+
+	local beforeResult = self:beforeHooks(params)
+	if beforeResult ~= nil then
+		return beforeResult
 	end
 
 	if State.static.stateLog then
-		local stateMapping = self:findState(func)
-		if stateMapping then
-			local info = self.name.."."..stateMapping.name
+		if params.stateName then
+			local info = self.name.."."..params.stateName
 			if self.timeoutSec then
-				info = info.."_"..State.static.wellFormatedTimeout(self.timeoutSec)
+				info = info.."_"..StateUtils.wellFormatedTimeout(self.timeoutSec)
 			end
 			
 			ilog(info)
 		end
 	end
 	mSleep(params.delay)
-	state, delay = func(self)
-	
-	-- state after
-	local stateAfter = params.stateInjection.after
-	if not skipStateInjection and stateAfter and type(stateAfter) == "function" then
-		local aState = stateAfter(self)
-		if aState ~= nil then
-			state = aState
-		end
-	end
-	
-	-- global state after
-	local globalStateAfter = State.static.stateInjection.after
-	if not skipGlobalStateInjection and globalStateAfter and type(globalStateAfter) == "function" then
-		local aState = globalStateAfter(self)
-		if aState ~= nil then
-			state = aState
-		end
-	end
 
+	state, delay = func(self)
+
+	local afterResult = self:afterHooks(params)
+	if afterResult ~= nil then
+		return afterResult
+	end
+	
 	return state, delay
 end
 
@@ -307,6 +345,7 @@ function StateMgr:initialize(name)
 	self.states = {}
 	self.current = nil
 	self.thread_id = nil
+	self.params = nil
 end
 
 function StateMgr:getName()
@@ -340,30 +379,6 @@ function StateMgr:isState(stateName)
 	return self.current:getName() == stateName
 end
 
-function StateMgr:nextState(stateName, ...)
-	local nextState = self.states[stateName]
-	if not nextState then
-		nextState = State.static.createState(stateName)
-		nextState:setMgr(self)
-		self.states[stateName] = nextState
-	end
-
-	ilog("------------------------------------", false)
-
-	if not self.current then
-		self.current = nextState
-		return self.current:start(self.current.enteredState)
-	else
-		if self.current == nextState then
-			return self.current:start(self.current.reenteredState)
-		else
-			self.current:exitedState(...)
-			self.current = nextState
-			return self.current:start(self.current.enteredState)
-		end
-	end
-end
-
 function StateMgr:setTimeout(timeout)
 	thread.setTimeout(timeout, self.thread_id)
 end
@@ -379,18 +394,21 @@ end
 function StateMgr:start(params)
 	params = params or {}
 	local stateStatus = nil
-	local flow = gc.taskFlow[self.name]
 	
+	local flow = gc.taskFlow[self.name]
 	if not flow then  
 		error("no configuration task flow: "..self.name) 
 	end
+
+	self.params = params
+	self.params.flow = flow
 	
 	local stateName = params.stateName or flow.StartState
 
 	self.thread_id = thread.create(function()
-		if params.timeout and type(params.timeout) == "number" then
+		if type(params.timeout) == "number" then
 			thread.setTimeout(params.timeout)
-		elseif flow.Timeout and type(flow.Timeout) == "number" then
+		elseif type(flow.Timeout) == "number" then
 			thread.setTimeout(flow.Timeout)
 		end
 
@@ -424,4 +442,28 @@ function StateMgr:start(params)
 	})
 
 	State.static.threadWait(thread, self.thread_id)
+end
+
+function StateMgr:nextState(stateName, ...)
+	local nextState = self.states[stateName]
+	if not nextState then
+		nextState = State.static.createState(stateName)
+		nextState:setMgr(self)
+		self.states[stateName] = nextState
+	end
+
+	ilog("------------------------------------", false)
+
+	if not self.current then
+		self.current = nextState
+		return self.current:start(self.current.enteredState)
+	else
+		if self.current == nextState then
+			return self.current:start(self.current.reenteredState)
+		else
+			self.current:exitedState(...)
+			self.current = nextState
+			return self.current:start(self.current.enteredState)
+		end
+	end
 end

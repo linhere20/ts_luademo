@@ -8,7 +8,6 @@ gc.states = {
 
 gc.taskFlow = {
 	
-	
 	mainTask = {
 		--默认初始状态
 		StartState = gc.states.MainState,
