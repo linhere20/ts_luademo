@@ -42,9 +42,11 @@ end
 
 local StateUtils = {
 	inWhiteList = function(ele, whiteList)
-		if type(whiteList) ~= "table" then
+		if ele == nil or hookList == nil then
 			return false
 		end
+
+		assert(type(whiteList) == "table", "whiteList must be a table")
 
 		for _, value in pairs(whiteList) do
 			if value == ele then
@@ -54,9 +56,11 @@ local StateUtils = {
 		return false
 	end,
 	inHookList = function(ele, hookList)
-		if type(hookList) ~= "table" then
+		if ele == nil or hookList == nil then
 			return false
 		end
+
+		assert(type(hookList) == "table", "hookList must be a table")
 
 		for _, value in pairs(hookList) do
 			if type(value) == "string" and string.match(ele, value) ~= nil then
@@ -396,9 +400,7 @@ function StateMgr:start(params)
 	local stateStatus = nil
 	
 	local flow = gc.taskFlow[self.name]
-	if not flow then  
-		error("no configuration task flow: "..self.name) 
-	end
+	assert(flow, "no configuration task flow: "..self.name)
 
 	self.params = params
 	self.params.flow = flow

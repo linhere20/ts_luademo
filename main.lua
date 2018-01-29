@@ -31,6 +31,6 @@ if not status then
 	ilog("errInfo: "..err)
 	--error(err) --throw an exception to the TouchSprite
 	dialog(err, 30)
-	lua_restart()
+	--lua_restart()
 end
 
