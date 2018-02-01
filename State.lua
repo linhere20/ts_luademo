@@ -41,28 +41,14 @@ end
 
 
 local StateUtils = {
-	inWhiteList = function(ele, whiteList)
-		if ele == nil or hookList == nil then
+	inList = function(ele, list)
+		if ele == nil or list == nil then
 			return false
 		end
 
-		assert(type(whiteList) == "table", "whiteList must be a table")
+		assert(type(list) == "table", "list must be a table")
 
-		for _, value in pairs(whiteList) do
-			if value == ele then
-				return true
-			end
-		end
-		return false
-	end,
-	inHookList = function(ele, hookList)
-		if ele == nil or hookList == nil then
-			return false
-		end
-
-		assert(type(hookList) == "table", "hookList must be a table")
-
-		for _, value in pairs(hookList) do
+		for _, value in pairs(list) do
 			if type(value) == "string" and string.match(ele, value) ~= nil then
 				return true
 			end
@@ -138,6 +124,10 @@ function State:findState(func)
 end
 
 function State:_handleThreadTimeout(exp, params)
+	if State.static.stateLog then
+		ilog(self.name.." has been timeout!")
+	end
+	
 	local state = params.timeoutHandler
 	if type(state) == "function" then
 		local myState = self:findState(state)
@@ -260,7 +250,7 @@ end
 function State:beforeHooks(params)
 	if type(State.static.stateHooks) == "table" then
 		for _, hook in pairs(State.static.stateHooks) do
-			if type(hook) == "table" and type(hook.before) == "function" and not StateUtils.inWhiteList(self.name, hook.whiteList) and StateUtils.inHookList(self.name, hook.patterns) then
+			if type(hook) == "table" and type(hook.before) == "function" and not StateUtils.inList(self.name, hook.whiteList) and StateUtils.inList(self.name, hook.hookList) then
 				local state = hook.before(self)
 				if state ~= nil then
 					return state
@@ -270,7 +260,7 @@ function State:beforeHooks(params)
 	end
 
 	local unitHook = params.stateHook
-	if type(unitHook) == "table" and type(unitHook.before) == "function" and not StateUtils.inWhiteList(params.stateName, unitHook.whiteList) and StateUtils.inHookList(params.stateName, unitHook.patterns) then
+	if type(unitHook) == "table" and type(unitHook.before) == "function" and not StateUtils.inList(params.stateName, unitHook.whiteList) and StateUtils.inList(params.stateName, unitHook.hookList) then
 		local state = unitHook.before(self)
 		if state ~= nil then
 			return state
@@ -282,7 +272,7 @@ function State:afterHooks(params)
 	local aState = nil
 
 	local unitHook = params.stateHook
-	if type(unitHook) == "table" and type(unitHook.after) == "function" and not StateUtils.inWhiteList(params.stateName, unitHook.whiteList) and StateUtils.inHookList(params.stateName, unitHook.patterns)  then
+	if type(unitHook) == "table" and type(unitHook.after) == "function" and not StateUtils.inList(params.stateName, unitHook.whiteList) and StateUtils.inList(params.stateName, unitHook.hookList)  then
 		local state = unitHook.after(self)
 		if state ~= nil then
 			aState = state
@@ -291,7 +281,7 @@ function State:afterHooks(params)
 
 	if type(State.static.stateHooks) == "table" then
 		for _, hook in pairs(State.static.stateHooks) do
-			if type(hook) == "table" and type(hook.after) == "function" and not StateUtils.inWhiteList(self.name, hook.whiteList) and StateUtils.inHookList(self.name, hook.patterns) then
+			if type(hook) == "table" and type(hook.after) == "function" and not StateUtils.inList(self.name, hook.whiteList) and StateUtils.inList(self.name, hook.hookList) then
 				local state = hook.after(self)
 				if state ~= nil then
 					aState = state
@@ -326,7 +316,11 @@ function State:nextState(func, params)
 				info = info.."_"..StateUtils.wellFormatedTimeout(self.timeoutSec)
 			end
 			
-			ilog(info)
+			if self.preState ~= self.state then
+				ilog(info)
+			else
+				itoast(info)
+			end
 		end
 	end
 	mSleep(params.delay)
@@ -436,6 +430,9 @@ function StateMgr:start(params)
 	end, {
 		catchBack = function(exp)
 			if exp.msg == "timeout" then
+				if State.static.stateLog then
+					ilog(self.name.." has been timeout!")
+				end
 				if params.timeoutHandler ~= nil and type(params.timeoutHandler) == "function" then
 					params.timeoutHandler(self)
 				end

@@ -25,7 +25,7 @@ function Page1State:configuration(thread, params)
 		after = function()
 			ilog(self.name.." state after", false)
 		end,
-		patterns = {".*"},
+		hookList = {".*"},
 		whiteList = {"wait1"}
 	}
 end

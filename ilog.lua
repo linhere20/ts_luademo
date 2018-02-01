@@ -21,16 +21,24 @@ function ilog(content, wToast)
 	local outWithDate = "[DATE] "..content
 	
 	if writeToast and wToast ~= false then
-		toast(content)
+		toast(content, 1)
 	end
+	
+	nLog(outWithDate)
 	
 	if writeFile then
 		wLog(logName, outWithDate)
 	end
+end
+
+function itoast(content)
+	if not content then
+		return
+	end
 	
-	--if isTestMode() then
-		nLog(outWithDate)
-	--end
+	local outWithDate = "[DATE] "..content
+	toast(content, 1)
+	nLog(outWithDate)
 end
 
 function clearLog()

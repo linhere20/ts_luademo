@@ -15,7 +15,7 @@ State.static.stateHooks = {
 		after = function(state) 
 			ilog(state.name.." global state after", false)
 		end,
-		patterns = {".*"},
+		hookList = {".*"},
 		whiteList = {gc.states.MainState}
 	}
 }
