@@ -2,7 +2,6 @@
 [lib]
 [file]
 test_thread.lua
-config.lua
 TSLib.lua
 ilog.lua
 middleclass.lua
@@ -15,3 +14,5 @@ Page1State.lua
 Page2State.lua
 
 MainState.lua
+
+StateConfig.lua

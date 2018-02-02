@@ -1,8 +1,8 @@
-require "config"
+require "StateConfig"
 
 State = class("State")
 
-State.static._version = "1.0.0"
+State.static._version = "2.0.0"
 State.static.stateLog = true
 State.static.nextStateDelay = 1000
 

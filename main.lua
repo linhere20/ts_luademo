@@ -3,7 +3,6 @@ sz = require "sz"
 json = sz.json
 thread = require "thread"
 class = require "middleclass"
-require "config"
 require "ilog"
 require "State"
 
