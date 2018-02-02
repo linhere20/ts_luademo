@@ -403,9 +403,13 @@ function StateMgr:start(params)
 	local flow = gc.taskFlow[self.name]
 	assert(flow, "no configuration task flow: "..self.name)
 
+	if type(flow.BeforeStartState) == "function" then
+		flow.BeforeStartState(params)
+	end
+
 	self.params = params
 	self.params.flow = flow
-	
+
 	local stateName = params.stateName or flow.StartState
 
 	self.thread_id = thread.create(function()

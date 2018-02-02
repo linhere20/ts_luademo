@@ -16,6 +16,10 @@ gc.taskFlow = {
 	demoTask = {
 		--超时，毫秒
 		Timeout = 1000 * 60 * 10,
+
+		BeforeStartState = function(params)
+			ilog("execute this function before StartState. UserData:"..params.userData)
+		end,
 		
 		StartState = gc.states.Page1State,
 

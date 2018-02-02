@@ -15,6 +15,7 @@ function MainState:getTask()
 	stateMgr:start({
 		--stateName = gc.states.Page1State,
 		--timeout = 1500000, 
+		userData = "user defined string",
 		timeoutHandler = function(mgr)
 			ilog("stateMgr timeout:"..mgr.name)
 		end
