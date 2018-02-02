@@ -114,7 +114,7 @@ end
 function State:configuration(...)
 end
 
-function State:findState(func)
+function State:_findStateUnit(func)
 	for k, v in pairs(self.class.__instanceDict) do
 		if v == func then
 			return {name = k, func = v} 
@@ -124,17 +124,18 @@ function State:findState(func)
 end
 
 function State:_handleThreadTimeout(exp, params)
+	self.timeoutSec = nil
 	if State.static.stateLog then
 		ilog(self.name.." has been timeout!")
 	end
 	
 	local state = params.timeoutHandler
 	if type(state) == "function" then
-		local myState = self:findState(state)
+		local myState = self:_findStateUnit(state)
 		if myState ~= nil then
 			return state
 		end
-
+		
 		return state(self)
 	end
 	
@@ -212,7 +213,7 @@ function State:start(startState)
 		end
 		
 		self.thread_id = threadCreate(function()
-			self:configuration(thread, params)
+			self:configuration(params)
 			
 			while(true) do
 				local nextState, nextStateDelay = self:nextState(self.state, params)
@@ -259,11 +260,14 @@ function State:beforeHooks(params)
 		end
 	end
 
-	local unitHook = params.stateHook
-	if type(unitHook) == "table" and type(unitHook.before) == "function" and not StateUtils.inList(params.stateName, unitHook.whiteList) and StateUtils.inList(params.stateName, unitHook.hookList) then
-		local state = unitHook.before(self)
-		if state ~= nil then
-			return state
+	if type(params.stateHooks) == "table" then
+		for _, unitHook in pairs(params.stateHooks) do
+			if type(unitHook) == "table" and type(unitHook.before) == "function" and not StateUtils.inList(params.stateName, unitHook.whiteList) and StateUtils.inList(params.stateName, unitHook.hookList) then
+				local state = unitHook.before(self)
+				if state ~= nil then
+					return state
+				end
+			end
 		end
 	end
 end
@@ -271,11 +275,14 @@ end
 function State:afterHooks(params)
 	local aState = nil
 
-	local unitHook = params.stateHook
-	if type(unitHook) == "table" and type(unitHook.after) == "function" and not StateUtils.inList(params.stateName, unitHook.whiteList) and StateUtils.inList(params.stateName, unitHook.hookList)  then
-		local state = unitHook.after(self)
-		if state ~= nil then
-			aState = state
+	if type(params.stateHooks) == "table" then
+		for _, unitHook in pairs(params.stateHooks) do
+			if type(unitHook) == "table" and type(unitHook.after) == "function" and not StateUtils.inList(params.stateName, unitHook.whiteList) and StateUtils.inList(params.stateName, unitHook.hookList)  then
+				local state = unitHook.after(self)
+				if state ~= nil then
+					aState = state
+				end
+			end			
 		end
 	end
 
@@ -296,7 +303,7 @@ end
 function State:nextState(func, params)
 	params = params or {}
 	params.stateName = nil
-	local stateMapping = self:findState(func)
+	local stateMapping = self:_findStateUnit(func)
 	if stateMapping then
 		params.stateName = stateMapping.name
 	end

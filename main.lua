@@ -10,10 +10,10 @@ require "State"
 State.static.stateHooks = {
 	{
 		before = function(state) 
-			ilog(state.name.." global state before", false)
+			--ilog(state.name.." global state before", false)
 		end,
 		after = function(state) 
-			ilog(state.name.." global state after", false)
+			--ilog(state.name.." global state after", false)
 		end,
 		hookList = {".*"},
 		whiteList = {gc.states.MainState}

@@ -1,7 +1,7 @@
 local Page1State = class("Page1State", State)
 
-function Page1State:configuration(thread, params)
-	thread.setTimeout(1000 * 10)  --整个Page1State超时10秒
+function Page1State:configuration(params)
+	self:setStateTimeout(1000 * 10)  --整个Page1State超时10秒
 	
 	--params.timeoutHandler 指定超时如何处理，有3种指定方法
 
@@ -18,15 +18,17 @@ function Page1State:configuration(thread, params)
 	end
 
 	--hook本状态类的状态单元
-	params.stateHook = {
-		before = function()
-			ilog(self.name.." state before", false)
-		end,
-		after = function()
-			ilog(self.name.." state after", false)
-		end,
-		hookList = {".*"},
-		whiteList = {"wait1"}
+	params.stateHooks = {
+		{
+			before = function()
+				--ilog(self.name.." state before", false)
+			end,
+			after = function()
+				--ilog(self.name.." state after", false)
+			end,
+			hookList = {".*"},
+			whiteList = {"wait1"}
+		}
 	}
 end
 
