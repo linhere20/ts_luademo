@@ -7,6 +7,10 @@ gc.states = {
 }
 
 gc.taskFlow = {
+
+	BeforeStartState = function(params)
+		ilog("execute this function before each task.")
+	end,
 	
 	mainTask = {
 		--默认初始状态
@@ -18,7 +22,7 @@ gc.taskFlow = {
 		Timeout = 1000 * 60 * 10,
 
 		BeforeStartState = function(params)
-			ilog("execute this function before StartState. UserData:"..params.userData)
+			ilog("execute this function before specific task. UserData:"..params.userData)
 		end,
 		
 		StartState = gc.states.Page1State,

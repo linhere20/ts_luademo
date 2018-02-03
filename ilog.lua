@@ -1,3 +1,4 @@
+local logPath = userPath().."/log/"
 local curDate = os.date("%Y-%m-%d")
 local logName = "aso_"..curDate
 local writeFile = true
@@ -51,7 +52,7 @@ function clearLog()
 		local logDay = string.format(gc.tsLogPath..'aso_%d-%02d-%02d.log', newTime.year, newTime.month, newTime.day)
 		table.insert(holdLogList, logDay)
 	end
-	table.insert(holdLogList, gc.tsLogPath..logName..".log")
+	table.insert(holdLogList, logPath..logName..".log")
 	
 	for i = 1, #logList do
 		local ele = logList[i]

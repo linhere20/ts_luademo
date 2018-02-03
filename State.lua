@@ -400,8 +400,14 @@ function StateMgr:start(params)
 	params = params or {}
 	local stateStatus = nil
 	
+	assert(type(gc.taskFlow) == "table", "gc.taskFlow must be a table")
+
 	local flow = gc.taskFlow[self.name]
 	assert(flow, "no configuration task flow: "..self.name)
+
+	if type(gc.taskFlow.BeforeStartState) == "function" then
+		gc.taskFlow.BeforeStartState(params)
+	end
 
 	if type(flow.BeforeStartState) == "function" then
 		flow.BeforeStartState(params)
