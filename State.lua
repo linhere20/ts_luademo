@@ -178,6 +178,11 @@ function State:isStateUnitCountModZero(mod)
 	return self.outCount % mod == 0
 end
 
+function State:isStateMgrCountOut(maxCount, forState)
+	assert(self.mgr, "StateMgr can not be null")
+	return self.mgr:isStateMgrCountOut(maxCount, forState)
+end
+
 function State:setStateTimeout(timeout)
 	thread.setTimeout(timeout, self.thread_id)
 end
@@ -350,7 +355,7 @@ function StateMgr:initialize(name)
 	self.states = {}
 	self.current = nil
 	self.thread_id = nil
-	self.params = nil
+	self.params = {}
 end
 
 function StateMgr:getName()
@@ -382,6 +387,24 @@ function StateMgr:isState(stateName)
 	end
 
 	return self.current:getName() == stateName
+end
+
+function StateMgr:isStateMgrCountOut(maxCount, forState)
+	assert(type(maxCount) == "number", "maxCount must be a number")
+	forState = forState or "_Null_State_"
+
+	local state = "_StateMgrCount_"..forState
+	local count = self.params[state]
+	if type(count) == "number" then
+		if count >= maxCount then
+			return true
+		end	
+		self.params[state] = count + 1
+	else
+		self.params[state] = 1
+	end
+
+	return false
 end
 
 function StateMgr:setTimeout(timeout)
