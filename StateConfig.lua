@@ -1,5 +1,7 @@
 gc = gc or {}
 
+gc.ok = "ok"
+
 gc.states = {
 	MainState = "MainState",
 	Page1State = "Page1State",
@@ -35,5 +37,3 @@ gc.taskFlow = {
 		},
 	}
 }
-
-gc.ok = "ok"

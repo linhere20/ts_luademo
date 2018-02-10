@@ -1,7 +1,3 @@
-function isTestMode()
-	return gc.mode == "test"
-end
-
 function doDelay(delay, callback, _self, ...)
 	if type(callback) ~= "function" then
 		return
@@ -48,29 +44,5 @@ end
 function isJsonString(str)
 	local status, err = tryCatch(json.decode, str)
 	return status
-end
-
-function isIphone5x()
-	return table.contains({"5c", "5s"}, _g.modelType)
-end
-	
-function isIphone6()
-	return _g.modelType == "6" 
-end
-
-function isRegisterTask()
-	if  rt.taskData and rt.taskData.taskType == "registertask" then
-		return true
-	end
-	
-	return false
-end
-
-function isDownloadTask()
-	if  rt.taskData and rt.taskData.taskType == "downloadtask" then
-		return true
-	end
-	
-	return false
 end
 

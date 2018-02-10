@@ -6,6 +6,7 @@ class = require "middleclass"
 require "dateutil"
 require "fileutil"
 require "httputil"
+require "funcutil"
 require "osutil"
 require "tableutil"
 require "ilog"
@@ -29,7 +30,7 @@ function main()
 	stateMgr:start()
 end
 
-local status, err = pcall(main, ...)
+local status, err = tryCatch(main)
 if not status then
 	ilog("occur an exception causes the program crashed!")
 	ilog("errInfo: "..err)
