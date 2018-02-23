@@ -9,6 +9,7 @@ require "httputil"
 require "funcutil"
 require "osutil"
 require "tableutil"
+require "tsutil"
 require "ilog"
 require "State"
 

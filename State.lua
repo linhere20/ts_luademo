@@ -208,7 +208,7 @@ function State:start(startState)
 		self.preState = nil
 		
 		local params = {
-			stateHook = {},
+			stateHooks = {},
 			delay = State.static.nextStateDelay
 		}
 		

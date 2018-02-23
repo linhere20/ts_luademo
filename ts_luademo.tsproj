@@ -1,6 +1,15 @@
 [res]
+ts_luademo.tsproj
+README.md
+LICENSE
 [lib]
 [file]
+tableutil.lua
+osutil.lua
+httputil.lua
+funcutil.lua
+fileutil.lua
+dateutil.lua
 test_thread.lua
 TSLib.lua
 ilog.lua
@@ -16,3 +25,5 @@ Page2State.lua
 MainState.lua
 
 StateConfig.lua
+
+tsutil.lua
