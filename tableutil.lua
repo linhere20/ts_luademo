@@ -43,7 +43,7 @@ function table.extend(source, target)
 					clone = {}
 				end
 
-				source[k] = extend(clone, copy)
+				source[k] = table.extend(clone, copy)
 			else
 				source[k] = copy
 			end	

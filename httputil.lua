@@ -3,7 +3,7 @@ function postHttpMsg(url, params, timeout)
 	local headers = json.encode({asokey = "haha"})
 	
 	params = params or {}
-	
+
 	local jsonparams = json.encode(params)
 	local escapedparams = http.build_request(jsonparams)
 	ilog("request: "..url.."\n params:"..jsonparams, false)

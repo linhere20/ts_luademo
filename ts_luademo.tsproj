@@ -4,13 +4,20 @@ README.md
 LICENSE
 [lib]
 [file]
+dialogactions.lua
+runtimedata.lua
+HotPatcher.lua
+iphone6.lua
+iphone5s.lua
+iphone5c.lua
+iphonebase.lua
+InitState.lua
 tableutil.lua
 osutil.lua
 httputil.lua
 funcutil.lua
 fileutil.lua
 dateutil.lua
-test_thread.lua
 TSLib.lua
 ilog.lua
 middleclass.lua
@@ -22,8 +29,10 @@ Page1State.lua
 
 Page2State.lua
 
-MainState.lua
+MonitorState.lua
 
 StateConfig.lua
 
 tsutil.lua
+
+config.lua

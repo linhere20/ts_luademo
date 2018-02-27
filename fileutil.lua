@@ -18,8 +18,9 @@ function getFileSize(file)
 	return size
 end
 
-function writeJsonAtPath(filePath, content)
-	writeFileString(filePath, json.encode(content))
+function writeJsonAtPath(filePath, content, mode)
+	mode = mode or "w"
+	return writeFileString(filePath, json.encode(content), mode)
 end
 
 function readJsonAtPath(filePath)

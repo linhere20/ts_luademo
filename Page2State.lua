@@ -1,5 +1,9 @@
 local Page2State = class("Page2State", State)
 
+function Page2State:initialize(name)
+	State.initialize(self, name)
+end
+
 function Page2State:enteredState()
 	return self.wait3
 end

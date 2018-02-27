@@ -32,6 +32,10 @@ function Page1State:configuration(params)
 	}
 end
 
+function Page1State:initialize(name)
+	State.initialize(self, name)
+end
+
 function Page1State:enteredState()
 	self.count = 1
 	return self.wait1, 500

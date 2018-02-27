@@ -10,19 +10,30 @@ require "funcutil"
 require "osutil"
 require "tableutil"
 require "tsutil"
+require "config"
+require "dialogactions"
+require "runtimedata"
 require "ilog"
 require "State"
 
 State.static.stateHooks = {
 	{
 		before = function(state) 
-			--ilog(state.name.." global state before", false)
-		end,
-		after = function(state) 
-			--ilog(state.name.." global state after", false)
+			--做心跳
+			local curTime = curTime()
+			if isTimeAfter(curTime, rt.lastHeartbeatTime or curTime, gc.heartbeatDuration) then
+				rt.lastHeartbeatTime = curTime
+				--postHttpMsg(gc.url.heartbeat)
+			end
+
+			--处理全局弹窗
+			local status = processDialog(state)
+			if status ~= nil then
+				return status
+			end
 		end,
 		hookList = {".*"},
-		whiteList = {gc.states.MainState}
+		whiteList = {gc.states.InitState}
 	}
 }
 
@@ -37,6 +48,6 @@ if not status then
 	ilog("errInfo: "..err)
 	--error(err) --throw an exception to the TouchSprite
 	dialog(err, 30)
-	--lua_restart()
+	lua_restart()
 end
 

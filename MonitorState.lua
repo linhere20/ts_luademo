@@ -1,14 +1,21 @@
-local MainState = class("MainState", State)
+local MonitorState = class("MonitorState", State)
 
-function MainState:enteredState()
+function MonitorState:initialize(name)
+	State.initialize(self, name)
+	self.hp = State.static.createState("HotPatcher")
+end
+
+function MonitorState:enteredState()
 	return self.getTask
 end
 
-function MainState:reenteredState()
+function MonitorState:reenteredState()
 	return self.enteredState
 end
 
-function MainState:getTask()
+function MonitorState:getTask()
+	self.hp:start()
+
 	local taskType = "demoTask"
 	
 	local stateMgr = StateMgr:new(taskType)
@@ -21,9 +28,9 @@ function MainState:getTask()
 		end
 	})
 	
-	mSleep(1000)
+	mSleep(2000)
 	
 	return self.getTask
 end
 
-return MainState
+return MonitorState

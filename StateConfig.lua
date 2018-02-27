@@ -1,9 +1,16 @@
 gc = gc or {}
 
 gc.ok = "ok"
+gc.fail = "fail"
+gc.this = "this"
+gc.loop = "loop"
+gc.err = "err"
+gc.continue = "continue"
+gc.timeout = "timeout"
 
 gc.states = {
-	MainState = "MainState",
+	InitState = "InitState",
+	MonitorState = "MonitorState",
 	Page1State = "Page1State",
 	Page2State = "Page2State"
 }
@@ -16,7 +23,11 @@ gc.taskFlow = {
 	
 	mainTask = {
 		--默认初始状态
-		StartState = gc.states.MainState,
+		StartState = gc.states.InitState,
+
+		InitState = {
+			ok = gc.states.MonitorState,
+		}
 	},
 
 	demoTask = {
