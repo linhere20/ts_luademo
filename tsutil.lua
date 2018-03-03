@@ -1,3 +1,87 @@
+function restartTS()
+	local content = json.encode({command = "restart"})
+	tryWriteFile("/private/var/mobile/Library/Preferences/com.inewbit.tscontroller.command.json", content)
+	lua_exit()
+end
+
+function swipe(sx, sy, ex, ey, step, delay)
+	step = step or 10
+	delay = delay or 30
+	
+	local deltaX = sx - ex
+	local deltaY = sy - ey
+	local xt = math.abs(deltaX / step)
+	local yt = math.abs(deltaY / step)
+	local startX, startY, endX, endY = sx, sy, ex, ey
+	
+	touchDown(sx, sy)
+	if deltaX < 0 and deltaY < 0 then  -- right, bottom
+		while xt > 0 or yt > 0 do
+			if xt > 0 then
+				xt = xt - 1
+				startX = startX + step
+			end
+			
+			if yt > 0 then
+				yt = yt - 1
+				startY = startY + step
+			end
+			
+			touchMove(startX, startY)
+			mSleep(delay)
+		end
+	elseif deltaX < 0 and deltaY >= 0 then -- right, top
+		while xt > 0 or yt > 0 do
+			if xt > 0 then
+				xt = xt - 1
+				startX = startX + step
+			end
+			
+			if yt > 0 then
+				yt = yt - 1
+				endY = endY - step
+			end
+			
+			touchMove(startX, endY)
+			mSleep(delay)
+		end
+	elseif deltaX >= 0 and deltaY < 0 then -- left, bottom
+		while xt > 0 or yt > 0 do
+			if xt > 0 then
+				xt = xt - 1
+				endX = endX - step
+			end
+			
+			if yt > 0 then
+				yt = yt - 1
+				startY = startY + step
+			end
+			
+			touchMove(endX, startY)
+			mSleep(delay)
+		end
+	
+	elseif deltaX >= 0 and deltaY >= 0 then -- left, top
+		while xt > 0 or yt > 0 do
+			if xt > 0 then
+				xt = xt - 1
+				endX = endX - step
+			end
+			
+			if yt > 0 then
+				yt = yt - 1
+				endY = endY - step
+			end
+			
+			touchMove(endX, endY)
+			mSleep(delay)
+		end
+	end
+	
+	mSleep(delay)
+	touchUp(ex, ey)
+end
+
 function isFindPos(x, y)
 	if x == -1 and y == -1 then
 		return false
