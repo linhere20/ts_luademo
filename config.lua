@@ -16,6 +16,7 @@ gc.url = {
 	--api
 	registerMachine = gc.serverPath.."/machine/machineInfo",
 	heartbeat = gc.serverPath.."/task/taskHeartbeat",
+	getVPN = gc.serverPath.."/common/a1sh3dj4ha8s/task/machineGetVpn",
 }
 
 
