@@ -4,6 +4,7 @@ README.md
 LICENSE
 [lib]
 [file]
+SwitchVPNState.lua
 dialogactions.lua
 runtimedata.lua
 HotPatcher.lua

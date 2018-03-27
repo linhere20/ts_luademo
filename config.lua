@@ -1,6 +1,7 @@
 gc = gc or {}
 
 gc.enableHotPatch = false
+gc.enableVPN = false
 
 gc.heartbeatDuration = 60
 
