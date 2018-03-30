@@ -1,3 +1,5 @@
+require "State"
+
 gc = gc or {}
 
 gc.ok = "ok"
@@ -48,3 +50,23 @@ gc.taskFlow = {
 		},
 	}
 }
+
+State.static.addHook({
+	id = "0",
+	before = function(state)
+		--做心跳
+		local curTime = curTime()
+		if isTimeAfter(curTime, rt.lastHeartbeatTime or curTime, gc.heartbeatDuration) then
+			rt.lastHeartbeatTime = curTime
+			--postHttpMsg(gc.url.heartbeat)
+		end
+
+		--处理全局弹窗
+		local status = processDialog(state)
+		if status ~= nil then
+			return status
+		end
+	end,
+	hookList = {".*"},
+	whiteList = {gc.states.InitState}
+})

@@ -1,5 +1,3 @@
-require "StateConfig"
-
 State = class("State")
 
 State.static._version = "2.0.0"
@@ -7,6 +5,30 @@ State.static.stateLog = true
 State.static.nextStateDelay = 1000
 
 State.static.stateHooks = {}
+
+State.static.addHook = function(hook)
+	--[[
+		hook: {
+			id = "1", --移除时需用id
+			before = function(state) --调用State目标函数前先调用此函数，返回非空值中断后续流程
+			end,
+			after = function(state) --调用State目标函数后调用此函数，返回非空值替换目标函数返回值
+			end,
+			hookList = {".*"}, --作用列表，State.name匹配则生效
+			whiteList = {gc.states.InitState} --白名单列表，State.name匹配则过滤
+		}
+	]]
+	assert(type(hook) == "table", "hook must be a table")
+	assert(type(hook.id) == "string", "hook.id must be a string")
+	for _, v in pairs(State.static.stateHooks) do
+		if v.id == hook.id then
+			return false
+		end
+	end
+	
+	table.insert(State.static.stateHooks, hook)
+	return true
+end
 
 State.static.createState = function(stateName, isAlone)
 	local state = require(stateName)
