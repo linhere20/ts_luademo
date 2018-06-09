@@ -251,11 +251,11 @@ function State:start(startState)
 				if type(nextStateDelay) == "number" then
 					params.delay = nextStateDelay
 				end
-
+				
 				if self.preState ~= self.state then
 					self.timeoutSec = nil
 				end
-				
+
 				if type(nextState) ~= "function" then
 					return nextState
 				end
@@ -478,12 +478,12 @@ function StateMgr:start(params)
 				if type(stateStatus) == "string" then
 					local cur = flow[self.current:getName()]
 					nextStateName = cur[stateStatus]
-				elseif type(stateStatus) == "table" and State.isInstanceOf(stateStatus, State) then
-					nextStateName = stateStatus.name
+				elseif type(stateStatus) == "table" and type(stateStatus._nextState) == "string" then
+					nextStateName = stateStatus._nextState
 				end
 			
 				if not nextStateName then
-					return
+					return stateStatus
 				end
 
 				stateStatus = self:nextState(nextStateName)
@@ -496,13 +496,14 @@ function StateMgr:start(params)
 					ilog(self.name.." has been timeout!")
 				end
 				if params.timeoutHandler ~= nil and type(params.timeoutHandler) == "function" then
-					params.timeoutHandler(self)
+					stateStatus = params.timeoutHandler(self)
 				end
 			end
 		end
 	})
 
 	State.static.threadWait(thread, self.thread_id)
+	return stateStatus
 end
 
 function StateMgr:nextState(stateName, ...)

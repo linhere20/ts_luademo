@@ -19,12 +19,13 @@ function MonitorState:getTask()
 	local taskType = "demoTask"
 	
 	local stateMgr = StateMgr:new(taskType)
-	stateMgr:start({
+	local stateReturn = stateMgr:start({
 		--stateName = gc.states.Page1State,
-		--timeout = 1500000, 
+		--timeout = 1500, 
 		userData = "user defined string",
 		timeoutHandler = function(mgr)
 			ilog("stateMgr timeout:"..mgr.name)
+			return "timeout"
 		end
 	})
 	
