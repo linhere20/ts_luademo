@@ -1,4 +1,5 @@
 require "State"
+require "StateMgr"
 
 gc = gc or {}
 

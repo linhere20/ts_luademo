@@ -225,3 +225,18 @@ function typeInputPassword(test, x, y)
 		mSleep(50)
 	end
 end
+
+function isInstalledApp(bundleId)
+	local apps = getUserApp()
+	if not apps then
+		return false
+	end
+
+	for i = 1, #apps do
+		local app = apps[i]
+		if app == bundleId then
+			return true
+		end
+	end
+	return false
+end
