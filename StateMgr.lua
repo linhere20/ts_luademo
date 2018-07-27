@@ -6,7 +6,6 @@ function StateMgr:initialize(name)
 	self.current = nil
 	self.thread_id = nil
 	self.params = {}
-	self.items = {}
 end
 
 function StateMgr:getName()
@@ -56,26 +55,6 @@ function StateMgr:isStateMgrCountOut(maxCount, forState)
 	end
 
 	return false
-end
-
-function StateMgr:registerItem(key, value)
-	local oldValue = self.items[key]
-	self.items[key] = value
-	return oldValue
-end
-
-function StateMgr:removeItem(key)
-	local oldValue = self.items[key]
-	self.items[key] = nil
-	return oldValue
-end
-
-function StateMgr:getItem(key)
-	return self.items[key]
-end
-
-function StateMgr:clearItems()
-	self.items = {}
 end
 
 function StateMgr:setTimeout(timeout)
@@ -161,6 +140,10 @@ function StateMgr:nextState(stateName, ...)
 		nextState = State.static.createState(stateName)
 		nextState:setMgr(self)
 		self.states[stateName] = nextState
+		
+		if self.current then
+			nextState.cache = self.current.cache
+		end
 	end
 
 	ilog("------------------------------------", false)

@@ -5,6 +5,7 @@ function Page2State:initialize(name)
 end
 
 function Page2State:enteredState()
+	ilog("cache.count: " .. self.cache.count)
 	return self.wait3
 end
 

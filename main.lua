@@ -17,8 +17,7 @@ require "ilog"
 require "StateConfig"
 
 function main()
-	local stateMgr = StateMgr:new("mainTask")
-	stateMgr:start()
+	StateMgr:new("mainTask"):start()
 end
 
 local status, err = tryCatch(main)

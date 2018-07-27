@@ -61,6 +61,7 @@ end
 
 function Page1State:wait2()
 	if self:isStateUnitTimeout(1000 * 5) then
+		self.cache.count = 999
 		ilog(self.name.. " wait2 timeout")
 		return gc.ok
 	end

@@ -16,19 +16,15 @@ end
 function MonitorState:getTask()
 	self.hp:start()
 
-	local taskType = "demoTask"
-	
-	local stateMgr = StateMgr:new(taskType)
-	local stateReturn = stateMgr:start({
+	local stateReturn = StateMgr:new("demoTask"):start({
 		--stateName = gc.states.Page1State,
 		--timeout = 1500, 
 		userData = "user defined string",
 		timeoutHandler = function(mgr)
-			ilog("stateMgr timeout:"..mgr.name)
 			return "timeout"
 		end
 	})
-	
+	ilog("demoTask returned: " .. stateReturn)
 	mSleep(2000)
 	
 	return self.getTask

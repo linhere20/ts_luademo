@@ -108,6 +108,7 @@ function State:initialize(name)
 	self.outCount = 1
 	self.timeoutSec = nil
 	self.curTime = nil
+	self.cache = {}
 end
 
 function State:getName()
