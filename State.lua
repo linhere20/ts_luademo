@@ -227,7 +227,7 @@ function State:stop()
 end
 
 function State:start(startState)
-	self.state = startState or self.enteredState;
+	self.state = startState or self.enteredState
 	
 	while(true) do
 		self.preState = nil
@@ -338,9 +338,6 @@ function State:nextState(func, params)
 		params.stateName = stateMapping.name
 	end
 
-	local state = nil
-	local delay = nil
-
 	local beforeResult = self:beforeHooks(params)
 	if beforeResult ~= nil then
 		return beforeResult
@@ -362,7 +359,7 @@ function State:nextState(func, params)
 	end
 	mSleep(params.delay)
 
-	state, delay = func(self)
+	local state, delay = func(self)
 
 	local afterResult = self:afterHooks(params)
 	if afterResult ~= nil then

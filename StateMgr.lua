@@ -123,7 +123,7 @@ function StateMgr:start(params)
 				if State.static.stateLog then
 					ilog(self.name.." has been timeout!")
 				end
-				if params.timeoutHandler ~= nil and type(params.timeoutHandler) == "function" then
+				if type(params.timeoutHandler) == "function" then
 					stateStatus = params.timeoutHandler(self)
 				end
 			end

@@ -14,6 +14,7 @@ gc.timeout = "timeout"
 gc.states = {
 	InitState = "InitState",
 	MonitorState = "MonitorState",
+	ShadowRocket = "ShadowRocket",
 	Page1State = "Page1State",
 	Page2State = "Page2State"
 }

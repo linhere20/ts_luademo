@@ -1,3 +1,12 @@
+function decodeURI(s)
+	return string.gsub(s, '%%(%x%x)', function(h) return string.char(tonumber(h, 16)) end)
+end
+
+function encodeURI(s)
+	s = string.gsub(s, "([^%w%.%- ])", function(c) return string.format("%%%02X", string.byte(c)) end)
+	return string.gsub(s, " ", "+")
+end
+
 function postHttpMsg(url, params, timeout)
 	local http = sz.i82.http
 	local headers = json.encode({asokey = "haha"})
@@ -32,6 +41,7 @@ end
 function postJSON(url, params, timeout)
 	local http = require("szocket.http")
 	local body_resp = {}
+	local body_str = ""
 
 	params = params or {}
 	local post_data = json.encode(params);  
@@ -47,15 +57,19 @@ function postJSON(url, params, timeout)
 		},  
 		source = ltn12.source.string(post_data),  
 		sink = ltn12.sink.table(body_resp)  
-	}  
+	} 
+	
+	for _, section in pairs(body_resp) do
+		body_str = body_str .. section
+	end
 
 	ilog("status:"..status_resp..", body:".. (body_resp[1] or "nil"), false)
 
 	local rsp = {
 		status = status_resp,
 		headers = headers_resp,
-		body = body_resp[1],
-		json = isJsonString(body_resp[1]) and json.decode(body_resp[1]) or {}
+		body = body_str,
+		json = isJsonString(body_str) and json.decode(body_str) or {}
 	}
 
 	if status_resp ~= gc.httpCode.ok then

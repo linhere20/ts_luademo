@@ -2,7 +2,7 @@ gc = gc or {}
 
 gc.enableHotPatch = false
 gc.enableVPN = false
-
+gc.enableSS = false
 gc.heartbeatDuration = 60
 
 gc.serverPath = "http://api.server.com"
@@ -17,6 +17,7 @@ gc.url = {
 	registerMachine = gc.serverPath.."/machine/machineInfo",
 	heartbeat = gc.serverPath.."/task/taskHeartbeat",
 	getVPN = gc.serverPath.."/common/a1sh3dj4ha8s/task/machineGetVpn",
+	getVPS = gc.serverPath.."/common/a1sh3dj4ha8s/task/machineGetVps"
 }
 
 

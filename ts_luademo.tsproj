@@ -4,6 +4,7 @@ README.md
 LICENSE
 [lib]
 [file]
+ShadowRocket.lua
 SwitchVPNState.lua
 dialogactions.lua
 runtimedata.lua
